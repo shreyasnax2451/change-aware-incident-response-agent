@@ -1,0 +1,430 @@
+[
+  {
+    "id": "INC-0177",
+    "title": "payments-service DB connection pool exhaustion",
+    "service": "payments-service",
+    "severity": "SEV2",
+    "started_at": "2026-04-19T19:10:00+05:30",
+    "detected_by": "PagerDuty: p99 latency > 3s",
+    "symptoms": "Checkout returning 503s, HikariPool-1 connection timeouts",
+    "error_signature": "HikariPool-1 - Connection is not available, request timed out after 30000ms",
+    "log_excerpt": "2026-04-19 19:11:22 ERROR c.z.h.p.HikariPool - HikariPool-1 - Connection is not available, request timed out after 30000ms.\njava.sql.SQLTransientConnectionException: payments-ds - Connection is not available",
+    "root_cause": "DEP-441 reduced DB connection pool from 80 to 30; peak evening traffic exhausted available connections",
+    "related_deploy": "DEP-441",
+    "fixes_tried": [
+      {
+        "action": "Restarted payments pods (2 replicas)",
+        "worked": false
+      },
+      {
+        "action": "Increased DB query timeout",
+        "worked": false
+      },
+      {
+        "action": "Rolled back DEP-441",
+        "worked": true
+      }
+    ],
+    "resolution": "Rolled back DEP-441 to restore pool size to 80. Recovery took 70 minutes because root cause was not immediately identified.",
+    "ttr_minutes": 70,
+    "responders": [
+      "Ravi",
+      "Priya"
+    ]
+  },
+  {
+    "id": "INC-0288",
+    "title": "payments-service 503s during evening peak \u2014 HikariCP timeout",
+    "service": "payments-service",
+    "severity": "SEV2",
+    "started_at": "2026-06-02T19:55:00+05:30",
+    "detected_by": "PagerDuty: error rate > 20%",
+    "symptoms": "checkout returning HTTP 503, DB connection wait times spiking",
+    "error_signature": "HikariPool-1 - Connection is not available, request timed out after 30000ms",
+    "log_excerpt": "2026-06-02 19:56:10 ERROR c.z.h.p.HikariPool - HikariPool-1 - Connection is not available, request timed out after 30000ms.",
+    "root_cause": "DEP-634 reduced DB pool from 60 to 20; same pattern as INC-0177",
+    "related_deploy": "DEP-634",
+    "fixes_tried": [
+      {
+        "action": "Restarted pods",
+        "worked": false
+      },
+      {
+        "action": "Rolled back DEP-634",
+        "worked": true
+      }
+    ],
+    "resolution": "Rolled back DEP-634. Recovery in 52 minutes.",
+    "ttr_minutes": 52,
+    "responders": [
+      "Sneha",
+      "Ravi"
+    ]
+  },
+  {
+    "id": "INC-0412",
+    "title": "Checkout 503s during evening peak \u2014 HikariPool exhaustion",
+    "service": "payments-service",
+    "severity": "SEV1",
+    "started_at": "2026-08-14T19:42:00+05:30",
+    "detected_by": "PagerDuty: p99 latency > 3s",
+    "symptoms": "All checkout requests returning 503. HikariPool-1 connection timeouts in logs.",
+    "error_signature": "HikariPool-1 - Connection is not available, request timed out after 30000ms",
+    "log_excerpt": "2026-08-14 19:43:01 ERROR c.z.h.p.HikariPool - HikariPool-1 - Connection is not available, request timed out after 30000ms.\njava.sql.SQLTransientConnectionException: payments-ds - Connection is not available, request timed out after 30000ms.",
+    "root_cause": "DEP-812 reduced HikariCP maximumPoolSize from 50 to 20; peak load exceeded pool capacity",
+    "related_deploy": "DEP-812",
+    "fixes_tried": [
+      {
+        "action": "Restarted payments pods",
+        "worked": false
+      },
+      {
+        "action": "Rolled back DEP-812",
+        "worked": true
+      }
+    ],
+    "resolution": "Rolled back DEP-812. Pool restored to 50 connections. Service recovered in 11 minutes after rollback.",
+    "ttr_minutes": 38,
+    "responders": [
+      "Ravi",
+      "Sneha"
+    ]
+  },
+  {
+    "id": "INC-0503",
+    "title": "payments-service down \u2014 4th DB pool exhaustion",
+    "service": "payments-service",
+    "severity": "SEV1",
+    "started_at": "2026-09-28T01:47:00+05:30",
+    "detected_by": "PagerDuty: p99 latency > 3s | Error rate 34% on /checkout",
+    "symptoms": "HikariPool-1 connection timeouts, checkout returning 503, DB active connections maxed",
+    "error_signature": "HikariPool-1 - Connection is not available, request timed out after 30000ms",
+    "log_excerpt": "2026-09-28 01:48:12 ERROR c.z.h.p.HikariPool - HikariPool-1 - Connection is not available, request timed out after 30000ms.\njava.sql.SQLTransientConnectionException: payments-ds - Connection is not available",
+    "root_cause": "DEP-901 reduced pool from 50 to 25; fourth occurrence of same pattern",
+    "related_deploy": "DEP-901",
+    "fixes_tried": [],
+    "resolution": "LIVE INCIDENT \u2014 demo scenario",
+    "ttr_minutes": null,
+    "responders": [
+      "Matrix"
+    ]
+  },
+  {
+    "id": "INC-0350",
+    "title": "checkout-api Redis OOM during Diwali Sale",
+    "service": "checkout-api",
+    "severity": "SEV1",
+    "started_at": "2026-10-24T20:15:00+05:30",
+    "detected_by": "PagerDuty: Redis OOM errors",
+    "symptoms": "Add-to-cart failing, NOEVICTION errors from Redis",
+    "error_signature": "OOM command not allowed when used memory > 'maxmemory'",
+    "log_excerpt": "redis.exceptions.ResponseError: OOM command not allowed when used memory > 'maxmemory'. Used: 3.98gb Max: 4.00gb",
+    "root_cause": "Cart keys had no TTL set; Diwali Sale traffic caused Redis memory to exceed maxmemory limit with allkeys-noeviction policy",
+    "related_deploy": "DEP-789",
+    "fixes_tried": [
+      {
+        "action": "Restarted Redis pod",
+        "worked": false
+      },
+      {
+        "action": "Raised maxmemory to 6GB and switched to allkeys-lru",
+        "worked": true
+      },
+      {
+        "action": "Set TTL of 86400s on all cart: keys",
+        "worked": true
+      }
+    ],
+    "resolution": "Raised maxmemory to 6GB, switched eviction policy to allkeys-lru, added TTL 86400s to cart keys. Recovered in 25 minutes.",
+    "ttr_minutes": 25,
+    "responders": [
+      "Priya",
+      "Matrix"
+    ]
+  },
+  {
+    "id": "INC-0200",
+    "title": "auth-service JWT validation failures",
+    "service": "auth-service",
+    "severity": "SEV2",
+    "started_at": "2026-05-03T11:22:00+05:30",
+    "detected_by": "Datadog: 401 error rate spike",
+    "symptoms": "Users unable to login, JWT token validation rejecting valid tokens",
+    "error_signature": "io.jsonwebtoken.ExpiredJwtException: JWT expired at ...",
+    "log_excerpt": "ERROR c.k.auth.JwtFilter - JWT expired at 2026-05-03T11:20:00Z. Current time: 2026-05-03T11:19:45Z.",
+    "root_cause": "Clock skew > 30s between auth-service pods and issuer; NTP misconfiguration in DEP-555",
+    "related_deploy": "DEP-555",
+    "fixes_tried": [
+      {
+        "action": "Restarted auth pods",
+        "worked": false
+      },
+      {
+        "action": "Fixed NTP config and redeployed (DEP-560)",
+        "worked": true
+      }
+    ],
+    "resolution": "Fixed NTP configuration in DEP-560. Bug permanently resolved in May 2026. If clock-skew errors recur on auth-service, suspect a regression of this fix.",
+    "ttr_minutes": 45,
+    "responders": [
+      "Kavya",
+      "Ravi"
+    ]
+  },
+  {
+    "id": "INC-1001",
+    "title": "Kafka consumer lag in checkout-api causing order backlog",
+    "service": "checkout-api",
+    "severity": "SEV2",
+    "started_at": "2026-04-05T09:12:00Z",
+    "detected_by": "Monitoring",
+    "symptoms": "Orders remain in 'pending' state for >10 minutes",
+    "error_signature": "consumer_lag > 5m",
+    "log_excerpt": "2026-04-05T09:10:12Z WARN consumer-group checkout-api lagging at 7m30s",
+    "root_cause": "Consumer group offset reset misconfiguration after recent config change",
+    "related_deploy": "DEP-100",
+    "fixes_tried": [
+      {
+        "action": "Manually reset consumer offsets",
+        "worked": false
+      },
+      {
+        "action": "Increase max.poll.interval.ms",
+        "worked": true
+      }
+    ],
+    "resolution": "Adjusted consumer config and restarted instances",
+    "ttr_minutes": 180,
+    "responders": [
+      "Anita Patel",
+      "Rohit Singh"
+    ]
+  },
+  {
+    "id": "INC-1002",
+    "title": "Elasticsearch query latency spike in search-service",
+    "service": "search-service",
+    "severity": "SEV2",
+    "started_at": "2026-05-10T14:30:00Z",
+    "detected_by": "APM",
+    "symptoms": "Search API response time >5s, users see timeout errors",
+    "error_signature": "search_query_time > 5s",
+    "log_excerpt": "2026-05-10T14:28:45Z ERROR query took 8.2s on index products_v2",
+    "root_cause": "Heavy wildcard query introduced in recent release without proper index mapping",
+    "related_deploy": "DEP-101",
+    "fixes_tried": [
+      {
+        "action": "Rollback recent query changes",
+        "worked": true
+      },
+      {
+        "action": "Add missing index fields",
+        "worked": false
+      }
+    ],
+    "resolution": "Rolled back change and added appropriate mappings",
+    "ttr_minutes": 240,
+    "responders": [
+      "Meera Joshi",
+      "Sanjay Kumar"
+    ]
+  },
+  {
+    "id": "INC-1003",
+    "title": "notification-worker OOM crash due to email batcher memory leak",
+    "service": "notification-worker",
+    "severity": "SEV1",
+    "started_at": "2026-06-01T02:45:00Z",
+    "detected_by": "K8s OOM alerts",
+    "symptoms": "Worker pod restarts every few minutes, email notifications delayed",
+    "error_signature": "OOMKilled",
+    "log_excerpt": "2026-06-01T02:44:58Z FATAL process killed due to OOM",
+    "root_cause": "Unreleased slice in email batch processing loop introduced in v2.3.1",
+    "related_deploy": "DEP-102",
+    "fixes_tried": [
+      {
+        "action": "Restart pod",
+        "worked": false
+      },
+      {
+        "action": "Patch email batcher to free slice",
+        "worked": true
+      }
+    ],
+    "resolution": "Deployed patch fixing memory release, pod stabilized",
+    "ttr_minutes": 90,
+    "responders": [
+      "Vikram Singh",
+      "Leena Rao"
+    ]
+  },
+  {
+    "id": "INC-1004",
+    "title": "Auth-service rate limit misconfiguration blocks legitimate logins",
+    "service": "auth-service",
+    "severity": "SEV2",
+    "started_at": "2026-03-20T11:00:00Z",
+    "detected_by": "Alertmanager",
+    "symptoms": "Login attempts return 429 Too Many Requests",
+    "error_signature": "rate_limit_exceeded",
+    "log_excerpt": "2026-03-20T10:59:45Z WARN rate limit exceeded for IP 103.45.22.11",
+    "root_cause": "New rate\u2011limit thresholds applied globally instead of per\u2011client during DEP-103",
+    "related_deploy": "DEP-103",
+    "fixes_tried": [
+      {
+        "action": "Reduce global limit back to previous value",
+        "worked": true
+      }
+    ],
+    "resolution": "Adjusted rate\u2011limit config and redeployed auth-service",
+    "ttr_minutes": 60,
+    "responders": [
+      "Priya Nair",
+      "Arun Das"
+    ]
+  },
+  {
+    "id": "INC-1005",
+    "title": "Search indexing failure after schema change",
+    "service": "search-service",
+    "severity": "SEV3",
+    "started_at": "2026-07-15T08:20:00Z",
+    "detected_by": "Health checks",
+    "symptoms": "New products not appearing in search results",
+    "error_signature": "indexing_error: mapping_conflict",
+    "log_excerpt": "2026-07-15T08:19:55Z ERROR indexing failed for product_id 98765: mapping conflict",
+    "root_cause": "Elasticsearch mapping updated without reindexing existing documents",
+    "related_deploy": "DEP-104",
+    "fixes_tried": [
+      {
+        "action": "Trigger full reindex",
+        "worked": true
+      }
+    ],
+    "resolution": "Completed reindex, search results restored",
+    "ttr_minutes": 480,
+    "responders": [
+      "Siddharth Mehta",
+      "Anjali Gupta"
+    ]
+  },
+  {
+    "id": "INC-1006",
+    "title": "Checkout-api payment gateway timeout",
+    "service": "checkout-api",
+    "severity": "SEV1",
+    "started_at": "2026-08-02T17:55:00Z",
+    "detected_by": "User reports",
+    "symptoms": "Payments fail with timeout error, order not created",
+    "error_signature": "gateway_timeout",
+    "log_excerpt": "2026-08-02T17:54:58Z ERROR payment request to gateway timed out after 30s",
+    "root_cause": "External payment provider experienced DDoS, no internal code change",
+    "related_deploy": null,
+    "fixes_tried": [
+      {
+        "action": "Retry with exponential backoff",
+        "worked": true
+      }
+    ],
+    "resolution": "Implemented retry logic and notified provider; issue resolved when provider recovered",
+    "ttr_minutes": 150,
+    "responders": [
+      "Radhika Iyer",
+      "Kunal Bhat"
+    ]
+  },
+  {
+    "id": "INC-1007",
+    "title": "JWT signing key rotation broke token verification",
+    "service": "auth-service",
+    "severity": "SEV2",
+    "started_at": "2026-04-25T06:10:00Z",
+    "detected_by": "Security monitoring",
+    "symptoms": "Valid tokens rejected with 401, users logged out unexpectedly",
+    "error_signature": "invalid_signature",
+    "log_excerpt": "2026-04-25T06:09:58Z WARN token verification failed for user_id 112233",
+    "root_cause": "New signing key not propagated to all auth-service instances after DEP-105",
+    "related_deploy": "DEP-105",
+    "fixes_tried": [
+      {
+        "action": "Distribute new key to all instances",
+        "worked": true
+      }
+    ],
+    "resolution": "Ensured key sync across fleet and added health check",
+    "ttr_minutes": 120,
+    "responders": [
+      "Nisha Verma",
+      "Harsh Patel"
+    ]
+  },
+  {
+    "id": "INC-1008",
+    "title": "Search-service circuit breaker opened due to upstream API failures",
+    "service": "search-service",
+    "severity": "SEV2",
+    "started_at": "2026-05-30T22:40:00Z",
+    "detected_by": "CircuitBreaker monitor",
+    "symptoms": "Search API returns 503, fallback empty results",
+    "error_signature": "circuit_open",
+    "log_excerpt": "2026-05-30T22:39:55Z WARN circuit breaker opened after 5 consecutive failures",
+    "root_cause": "Third\u2011party recommendation API became unavailable after DEP-106 deployment",
+    "related_deploy": "DEP-106",
+    "fixes_tried": [
+      {
+        "action": "Disable recommendation integration",
+        "worked": true
+      }
+    ],
+    "resolution": "Temporarily disabled integration and rolled back failing change",
+    "ttr_minutes": 210,
+    "responders": [
+      "Deepak Rao",
+      "Maya Singh"
+    ]
+  },
+  {
+    "id": "INC-1009",
+    "title": "Email provider throttling delays notifications",
+    "service": "notification-worker",
+    "severity": "SEV3",
+    "started_at": "2026-06-18T13:05:00Z",
+    "detected_by": "Metrics dashboard",
+    "symptoms": "Email delivery latency >15 minutes",
+    "error_signature": "provider_throttle",
+    "log_excerpt": "2026-06-18T13:04:50Z WARN email provider responded with 429 Too Many Requests",
+    "root_cause": "High volume burst after promotional campaign, provider rate limit hit",
+    "related_deploy": null,
+    "fixes_tried": [
+      {
+        "action": "Backoff and retry logic added",
+        "worked": true
+      }
+    ],
+    "resolution": "Implemented exponential backoff; delivery times normalized",
+    "ttr_minutes": 70,
+    "responders": [
+      "Kavita Shah",
+      "Vivek Menon"
+    ]
+  },
+  {
+    "id": "INC-1010",
+    "title": "Checkout-api high CPU from runaway discount calculation loop",
+    "service": "checkout-api",
+    "severity": "SEV1",
+    "started_at": "2026-07-28T09:15:00Z",
+    "detected_by": "CPU alert",
+    "symptoms": "CPU usage >90% on checkout pods, order processing stalls",
+    "error_signature": "cpu_spike",
+    "log_excerpt": "2026-07-28T09:14:58Z ERROR discount engine entered infinite recursion",
+    "root_cause": "Bug in new discount rule engine introduced in DEP-107",
+    "related_deploy": "DEP-107",
+    "fixes_tried": [
+      {
+        "action": "Rollback discount engine",
+        "worked": true
+      }
+    ]
+  }
+]

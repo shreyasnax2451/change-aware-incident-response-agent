@@ -1,0 +1,65 @@
+[
+  {
+    "id": "DEP-441",
+    "service": "payments-service",
+    "timestamp": "2026-04-19T17:45:00+05:30",
+    "author": "Ravi",
+    "change_summary": "Reduce DB connection pool max from 80 to 30 to reduce RDS cost",
+    "diff_snippet": "- maximumPoolSize: 80\n+ maximumPoolSize: 30",
+    "caused_incident": "INC-0177"
+  },
+  {
+    "id": "DEP-634",
+    "service": "payments-service",
+    "timestamp": "2026-06-02T14:20:00+05:30",
+    "author": "Sneha",
+    "change_summary": "Reduce DB pool from 60 to 20 \u2014 cost optimisation initiative",
+    "diff_snippet": "- maximumPoolSize: 60\n+ maximumPoolSize: 20",
+    "caused_incident": "INC-0288"
+  },
+  {
+    "id": "DEP-812",
+    "service": "payments-service",
+    "timestamp": "2026-08-14T18:55:00+05:30",
+    "author": "Ravi",
+    "change_summary": "Reduce DB pool max from 50 to 20 to save RDS cost",
+    "diff_snippet": "- maximumPoolSize: 50\n+ maximumPoolSize: 20",
+    "caused_incident": "INC-0412"
+  },
+  {
+    "id": "DEP-901",
+    "service": "payments-service",
+    "timestamp": "2026-09-28T01:00:00+05:30",
+    "author": "Matrix",
+    "change_summary": "Reduce DB pool from 50 to 25 to cut RDS cost by 30%",
+    "diff_snippet": "- maximumPoolSize: 50\n+ maximumPoolSize: 25",
+    "caused_incident": "INC-0503"
+  },
+  {
+    "id": "DEP-555",
+    "service": "auth-service",
+    "timestamp": "2026-05-03T10:50:00+05:30",
+    "author": "Kavya",
+    "change_summary": "Update NTP config in auth-service (misconfigured clock sync)",
+    "diff_snippet": "- ntpServer: pool.ntp.org\n+ ntpServer: 169.254.169.123  # AWS Time Sync",
+    "caused_incident": "INC-0200"
+  },
+  {
+    "id": "DEP-560",
+    "service": "auth-service",
+    "timestamp": "2026-05-03T12:45:00+05:30",
+    "author": "Kavya",
+    "change_summary": "Fix NTP configuration \u2014 resolves JWT clock-skew bug permanently",
+    "diff_snippet": "- ntpServer: pool.ntp.org\n+ ntpServer: 169.254.169.123\n+ maxClockSkew: 60s",
+    "caused_incident": null
+  },
+  {
+    "id": "DEP-789",
+    "service": "checkout-api",
+    "timestamp": "2026-10-24T18:00:00+05:30",
+    "author": "Priya",
+    "change_summary": "Add Diwali Sale feature flags \u2014 no cart key TTL change",
+    "diff_snippet": "+ DIWALI_SALE_ENABLED=true\n+ SALE_DISCOUNT_PERCENT=30",
+    "caused_incident": "INC-0350"
+  }
+]

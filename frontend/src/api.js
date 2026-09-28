@@ -316,7 +316,8 @@ export async function refreshPlaybook(service) {
 
 export async function getMemories(query = '') {
   try {
-    return await apiFetch(`/api/memories?q=${encodeURIComponent(query)}`);
+    const data = await apiFetch(`/api/memories?q=${encodeURIComponent(query)}`);
+    return data.results;
   } catch {
     await delay(500);
     const q = query.toLowerCase();

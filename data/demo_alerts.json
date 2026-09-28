@@ -1,0 +1,8 @@
+{
+  "demo_alert": "CRITICAL: payments-service \u2014 HikariPool-1 connection timeouts\nPagerDuty: p99 latency > 3s | Error rate 34% on /checkout\nDetected: 2026-09-28T01:47:00+05:30\nLogs: HikariPool-1 - Connection is not available, request timed out after 30000ms\n      java.sql.SQLTransientConnectionException: payments-ds - Connection is not available\nRecent deploy: DEP-901 by Matrix (47 min ago) \u2014 'Reduce DB pool max from 50 to 25 to cut RDS cost'",
+  "demo_pr": {
+    "service": "payments-service",
+    "change_description": "Reduce DB connection pool from 50 to 25 to cut RDS cost by ~30%. Change: maximumPoolSize: 50 \u2192 25 in payments-service HikariCP config.",
+    "diff": "--- a/config/payments-service.yaml\n+++ b/config/payments-service.yaml\n@@ -14,7 +14,7 @@ datasource:\n   hikari:\n-    maximumPoolSize: 50\n+    maximumPoolSize: 25\n     minimumIdle: 5\n     connectionTimeout: 30000"
+  }
+}
