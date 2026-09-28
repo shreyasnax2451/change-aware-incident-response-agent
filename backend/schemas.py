@@ -37,6 +37,7 @@ class TriageResponse(BaseModel):
     suspect_change: Optional[str] = None
     confidence: Literal["low", "medium", "high"]
     spoken_summary: str
+    auto_fix_script: Optional[str] = None
     memories_used: List[MemoryItem] = []
 
 
@@ -56,6 +57,7 @@ class ResolveResponse(BaseModel):
     ok: bool
     retained_ids: List[str] = []
     message: str = ""
+    postmortem_markdown: str = ""
 
 
 # ─── Risk Check ──────────────────────────────────────────────────────────────
@@ -88,6 +90,17 @@ class PlaybookResponse(BaseModel):
     current: str
     previous: Optional[str] = None
     updated_at: Optional[str] = None
+
+
+# ─── Weakness Report ─────────────────────────────────────────────────────────
+
+class WeaknessReportRequest(BaseModel):
+    service: str
+
+class WeaknessReportResponse(BaseModel):
+    service: str
+    report_markdown: str
+    memories_used: List[MemoryItem] = []
 
 
 # ─── Voice ───────────────────────────────────────────────────────────────────

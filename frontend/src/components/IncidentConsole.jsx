@@ -5,6 +5,7 @@ import MemoryToggle from './MemoryToggle';
 import PushToTalk from './PushToTalk';
 import DiagnosisCard from './DiagnosisCard';
 import MemoryEvidence from './MemoryEvidence';
+import InteractiveVoice from './InteractiveVoice';
 
 const SERVICES = [
   'payments-service',
@@ -32,6 +33,7 @@ export default function IncidentConsole({ onToast }) {
   const [resolveForm, setResolveForm] = useState({ worked: '', failed: '', notes: '' });
   const [resolving, setResolving] = useState(false);
   const [incidentId, setIncidentId] = useState(null);
+  const [postmortemMarkdown, setPostmortemMarkdown] = useState('');
 
   const handleAnalyze = async () => {
     if (!alertText.trim()) return;
@@ -61,7 +63,7 @@ export default function IncidentConsole({ onToast }) {
     }
     setResolving(true);
     try {
-      await resolve({
+      const res = await resolve({
         incident_id: incidentId,
         alert_text: alertText,
         service,
@@ -73,6 +75,10 @@ export default function IncidentConsole({ onToast }) {
       onToast('✓ Resolution saved to memory', 'success');
       setResolveOpen(false);
       setResolveForm({ worked: '', failed: '', notes: '' });
+      if (res.postmortem_markdown) {
+        setPostmortemMarkdown(res.postmortem_markdown);
+        onToast('✨ Automated Post-Mortem Generated', 'info');
+      }
     } catch (e) {
       onToast('Failed to save resolution', 'error');
     } finally {
@@ -84,12 +90,14 @@ export default function IncidentConsole({ onToast }) {
     <div className="fade-in">
       <div className="page-header">
         <h1>// Incident Console</h1>
-        <p>Paste an alert, speak it, or use the demo payload — Déjà Vu recalls what happened before.</p>
+        <p>Paste an alert, speak it, or use the demo payload — OnCall AI recalls what happened before.</p>
       </div>
 
       <div className="split-layout">
         {/* ── Left panel: inputs ── */}
-        <div className="col">
+        <div className="col" style={{ gap: '1rem', display: 'flex', flexDirection: 'column' }}>
+          <InteractiveVoice onToast={onToast} />
+          
           <div className="card">
             <div className="card-title">Alert Input & Controls</div>
 
@@ -223,7 +231,7 @@ export default function IncidentConsole({ onToast }) {
               <div className="empty-state">
                 <span className="icon">🔍</span>
                 <h3>No analysis yet</h3>
-                <p>Enter an alert and click Analyze to see Déjà Vu recall similar incidents from memory.</p>
+                <p>Enter an alert and click Analyze to see OnCall AI recall similar incidents from memory.</p>
               </div>
             </div>
           )}
@@ -238,6 +246,14 @@ export default function IncidentConsole({ onToast }) {
                 memories={diagnosis.memories_used}
                 memoryEnabled={memoryEnabled}
               />
+              {postmortemMarkdown && (
+                <div className="card fade-in" style={{ marginTop: '1rem', borderTop: '2px solid var(--primary)' }}>
+                  <div className="card-title" style={{ color: 'var(--primary)' }}>📄 Automated Post-Mortem</div>
+                  <pre style={{ whiteSpace: 'pre-wrap', background: 'var(--bg-card)', padding: '1rem', fontSize: '0.85rem' }}>
+                    {postmortemMarkdown}
+                  </pre>
+                </div>
+              )}
             </>
           )}
         </div>

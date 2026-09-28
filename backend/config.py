@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     HINDSIGHT_API_KEY: str = ""
     HINDSIGHT_BANK_ID: str = "dejavu-eng"
 
-    TTS_PROVIDER: str = "groq"  # "groq" | "browser"
+    TTS_PROVIDER: str = "groq"  # "groq" | "browser" | "deepgram" | "elevenlabs"
+    DEEPGRAM_API_KEY: str = ""
+    ELEVENLABS_API_KEY: str = ""
 
     class Config:
         env_file = "../.env"

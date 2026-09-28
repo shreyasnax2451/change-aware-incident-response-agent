@@ -16,29 +16,38 @@ const TYPE_ICONS = {
   'engineer preference': '💡',
 };
 
-export default function MemoryTimeline({ onToast }) {
-  const [memories, setMemories] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function MemoryTimeline({ onToast, globalMemories }) {
+  const [memories, setMemories] = useState(globalMemories || []);
   const [query, setQuery] = useState('');
-  const [searching, setSearching] = useState(false);
 
+  // Update local memories if globalMemories loads after mount
   useEffect(() => {
-    getMemories('').then((m) => { setMemories(m); setLoading(false); });
-  }, []);
+    if (globalMemories && !query) {
+      setMemories(globalMemories);
+    }
+  }, [globalMemories, query]);
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    setSearching(true);
-    const m = await getMemories(query);
-    setMemories(m);
-    setSearching(false);
+    if (!query.trim()) {
+      setMemories(globalMemories);
+      return;
+    }
+    const q = query.toLowerCase();
+    const filtered = globalMemories.filter((m) => 
+      (m.text && m.text.toLowerCase().includes(q)) ||
+      (m.service && m.service.toLowerCase().includes(q)) ||
+      (m.id && m.id.toLowerCase().includes(q)) ||
+      (m.type && m.type.toLowerCase().includes(q))
+    );
+    setMemories(filtered);
   };
 
   return (
     <div className="fade-in">
       <div className="page-header">
         <h1>// Memory Timeline</h1>
-        <p>Everything Déjà Vu knows — incidents, deploys, resolutions, and engineer preferences.</p>
+        <p>Everything OnCall AI knows — incidents, deploys, resolutions, and engineer preferences.</p>
       </div>
 
       {/* Search */}
@@ -50,14 +59,13 @@ export default function MemoryTimeline({ onToast }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search memories… (e.g. payments-service, Redis, pool)"
         />
-        <button className="btn btn-ghost" type="submit" disabled={searching} id="memory-search-btn">
-          {searching ? '⟳' : '🔍'} Search
+        <button className="btn btn-ghost" type="submit" id="memory-search-btn">
+          🔍 Search
         </button>
       </form>
 
       {/* Stats row */}
-      {!loading && (
-        <div className="row" style={{ marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div className="row" style={{ marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           {Object.entries(TYPE_ICONS).map(([type, icon]) => {
             const count = memories.filter((m) => m.type === type).length;
             return (
@@ -75,16 +83,9 @@ export default function MemoryTimeline({ onToast }) {
             );
           })}
         </div>
-      )}
 
-      {loading && (
-        <div className="loading-overlay">
-          <div className="spinner" />
-          <span>Loading memory bank…</span>
-        </div>
-      )}
 
-      {!loading && memories.length === 0 && (
+      {memories.length === 0 && (
         <div className="empty-state">
           <span className="icon">📭</span>
           <h3>No memories found</h3>
@@ -92,7 +93,7 @@ export default function MemoryTimeline({ onToast }) {
         </div>
       )}
 
-      {!loading && memories.length > 0 && (
+      {memories.length > 0 && (
         <div className="memory-timeline-list">
           {memories.map((m, i) => (
             <div

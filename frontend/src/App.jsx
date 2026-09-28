@@ -5,6 +5,7 @@ import IncidentConsole from './components/IncidentConsole';
 import ChangeReview from './components/ChangeReview';
 import PlaybookView from './components/PlaybookView';
 import MemoryTimeline from './components/MemoryTimeline';
+import ArchitectureReport from './components/ArchitectureReport';
 import { healthCheck } from './api';
 
 const PAGES = [
@@ -12,6 +13,7 @@ const PAGES = [
   { id: 'risk',     label: 'Change Review',    icon: '🛡' },
   { id: 'playbook', label: 'Playbooks',        icon: '📖' },
   { id: 'memory',   label: 'Memory',           icon: '🧠' },
+  { id: 'architecture', label: 'Architecture', icon: '🏛' },
 ];
 
 // ─── Toast system ─────────────────────────────────────────────────────────────
@@ -34,9 +36,14 @@ export default function App() {
   const [toasts, setToasts] = useState([]);
   const [health, setHealth] = useState(null);
 
-  // Health check on mount
+  // Health check and Memory preload on mount
+  const [globalMemories, setGlobalMemories] = useState([]);
+  
   useEffect(() => {
     healthCheck().then(setHealth);
+    import('./api').then(({ getMemories }) => {
+      getMemories('').then(setGlobalMemories).catch(() => {});
+    });
   }, []);
 
   const addToast = useCallback((message, type = 'info') => {
@@ -54,7 +61,8 @@ export default function App() {
       case 'triage':   return <IncidentConsole onToast={addToast} />;
       case 'risk':     return <ChangeReview onToast={addToast} />;
       case 'playbook': return <PlaybookView onToast={addToast} />;
-      case 'memory':   return <MemoryTimeline onToast={addToast} />;
+      case 'memory':   return <MemoryTimeline onToast={addToast} globalMemories={globalMemories} />;
+      case 'architecture': return <ArchitectureReport onToast={addToast} />;
       default:         return null;
     }
   };
@@ -64,9 +72,12 @@ export default function App() {
       {/* ── Navbar ── */}
       <nav className="navbar" role="navigation" aria-label="Main navigation">
         <a className="navbar-brand" href="#" onClick={(e) => { e.preventDefault(); setPage('triage'); }}>
-          <span className="brand-icon">🧠</span>
-          <span className="brand-name">DÉJÀ VU</span>
-          {/* <span className="brand-tag">by Kirana Cart SRE</span> */}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--cyan)' }}>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
+          <span className="brand-name" style={{ letterSpacing: '1px', fontWeight: 800 }}>OnCall AI</span>
         </a>
 
         <ul className="navbar-nav" role="list">

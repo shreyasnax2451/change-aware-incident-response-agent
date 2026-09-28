@@ -1,4 +1,4 @@
-# Déjà Vu — Change-Aware Incident Memory Agent
+# OnCall AI — Change-Aware Incident Memory Agent
 
 **HackwithHyderabad 3.0 · Hindsight (Vectorize) memory hackathon · 1-day build · 2-person team**
 
@@ -53,9 +53,9 @@ Several teams built "paste an incident, recall similar past incidents, store the
 - **Operator mode:** runs 24/7, scheduled health checks, **deployment verification** (checks a new version is healthy *after* deploy), can open GitHub PRs with fixes.
 - **Read-only by design**, respects RBAC. Any LLM provider.
 
-**How Déjà Vu differs (use this in the pitch):**
+**How OnCall AI differs (use this in the pitch):**
 
-| | HolmesGPT | Déjà Vu (ours) |
+| | HolmesGPT | OnCall AI (ours) |
 |---|---|---|
 | Question it answers | "What is happening **right now**?" | "Have we seen this **before**, and what worked?" |
 | Knowledge source | Live telemetry + static runbooks you write | Accumulated memory of incidents, deploys, fixes, failed fixes, preferences |
@@ -63,7 +63,7 @@ Several teams built "paste an incident, recall similar past incidents, store the
 | Deploys | Verifies health **after** deploy | Predicts risk **before** merge from incident history |
 | Failed fixes | Not a first-class concept | Remembered and actively warned against |
 
-**One-liner:** *HolmesGPT is the detective at the scene; Déjà Vu is the team's institutional memory.* They're complementary. A future version could feed Déjà Vu's recall into a Holmes-style investigation.
+**One-liner:** *HolmesGPT is the detective at the scene; OnCall AI is the team's institutional memory.* They're complementary. A future version could feed OnCall AI's recall into a Holmes-style investigation.
 
 **What we borrow from Holmes (cheaply):**
 - Accept alerts in an **AlertManager-like JSON shape** so it looks real.
@@ -232,7 +232,7 @@ TTS_PROVIDER=groq              # groq | browser
 ```python
 client.create_bank(
     bank_id="dejavu-eng",
-    name="Déjà Vu – Engineering Incident Memory",
+    name="OnCall AI – Engineering Incident Memory",
     mission=("You are the institutional memory of an engineering org. Track production "
              "incidents, their root causes, fixes that worked and fixes that failed, "
              "deploys/changes and their consequences, and on-call engineers' preferences."),
@@ -299,7 +299,7 @@ def reflect(query, context=None, budget="mid"):
 ### 9.1 Triage prompt (`prompts.py`)
 ```
 SYSTEM:
-You are Déjà Vu, an incident-response assistant for an engineering team.
+You are OnCall AI, an incident-response assistant for an engineering team.
 You receive a NEW INCIDENT and RELEVANT MEMORY from the team's past incidents,
 deploys, resolutions and engineer preferences.
 Rules:

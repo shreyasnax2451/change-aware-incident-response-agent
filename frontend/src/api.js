@@ -369,3 +369,18 @@ export async function healthCheck() {
     return { hindsight: 'offline (mock mode)', groq: 'offline (mock mode)' };
   }
 }
+
+export async function getWeaknessReport(service) {
+  try {
+    return await apiFetch('/api/weakness', {
+      method: 'POST',
+      body: JSON.stringify({ service }),
+    });
+  } catch {
+    await delay(1500);
+    return {
+      service,
+      report_markdown: `# Structural Weakness Report: ${service}\n\n**Mock Data**: The backend is offline. But normally, this would analyze all past incidents and suggest architectural refactors.`
+    };
+  }
+}

@@ -54,7 +54,7 @@ async def ensure_bank(hs) -> None:
     try:
         await hs.acreate_bank(
             bank_id=settings.HINDSIGHT_BANK_ID,
-            name="Déjà Vu — Engineering Incident Memory",
+            name="OnCall AI — Engineering Incident Memory",
             mission=(
                 "You are the institutional memory of the Kirana Cart engineering org. "
                 "Track production incidents, their root causes, fixes that worked and "
@@ -73,7 +73,7 @@ async def ensure_bank(hs) -> None:
             try:
                 hs.create_bank(
                     bank_id=settings.HINDSIGHT_BANK_ID,
-                    name="Déjà Vu — Engineering Incident Memory",
+                    name="OnCall AI — Engineering Incident Memory",
                     mission=(
                         "You are the institutional memory of the Kirana Cart engineering org. "
                         "Track production incidents, their root causes, fixes that worked and "
@@ -235,7 +235,7 @@ async def run_all(incidents: list[dict], deploys: list[dict]) -> None:
 
 
 def main():
-    print("=== Déjà Vu — Hindsight Memory Seeder ===")
+    print("=== OnCall AI — Hindsight Memory Seeder ===")
     print(f"Bank: {settings.HINDSIGHT_BANK_ID}")
     print(f"URL:  {settings.HINDSIGHT_BASE_URL or '(not set)'}")
 

@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
-from routes import triage, resolve, risk, playbook, voice, memories
+from routes import triage, resolve, risk, playbook, voice, memories, weakness
 from schemas import HealthResponse
 
 logging.basicConfig(
@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Déjà Vu — Change-Aware Incident Memory Agent",
+    title="OnCall AI — Change-Aware Incident Memory Agent",
     description=(
         "An on-call assistant that remembers every past production incident, "
         "what caused it, what fixed it — and warns about risky changes before they ship."
@@ -39,6 +39,7 @@ app.include_router(risk.router,     prefix=API, tags=["risk"])
 app.include_router(playbook.router, prefix=API, tags=["playbook"])
 app.include_router(voice.router,    prefix=API, tags=["voice"])
 app.include_router(memories.router, prefix=API, tags=["memories"])
+app.include_router(weakness.router, prefix=API, tags=["weakness"])
 
 
 # ─── Health check ─────────────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ async def health() -> HealthResponse:
 
 @app.on_event("startup")
 async def startup() -> None:
-    logger.info("Déjà Vu backend starting up")
+    logger.info("OnCall AI backend starting up")
     logger.info("  GROQ_MODEL     = %s", settings.GROQ_MODEL)
     logger.info("  HINDSIGHT_BANK = %s", settings.HINDSIGHT_BANK_ID)
     logger.info("  TTS_PROVIDER   = %s", settings.TTS_PROVIDER)

@@ -1,5 +1,5 @@
 // DiagnosisCard.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { speak } from '../api';
 
 export default function DiagnosisCard({ diagnosis }) {
@@ -16,6 +16,7 @@ export default function DiagnosisCard({ diagnosis }) {
     suspect_change,
     confidence,
     spoken_summary,
+    auto_fix_script,
   } = diagnosis;
 
   const handleSpeak = async () => {
@@ -37,6 +38,13 @@ export default function DiagnosisCard({ diagnosis }) {
       setSpeaking(false);
     }
   };
+
+  useEffect(() => {
+    if (spoken_summary) {
+      handleSpeak();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spoken_summary]);
 
   return (
     <div className="diagnosis-card fade-in">
@@ -88,6 +96,16 @@ export default function DiagnosisCard({ diagnosis }) {
               <li key={i}>{f}</li>
             ))}
           </ol>
+        </div>
+      )}
+
+      {/* Auto-fix script */}
+      {auto_fix_script && (
+        <div className="fix-list" style={{ marginTop: '1rem', background: 'rgba(0,255,0,0.05)', borderLeft: '2px solid var(--green)' }}>
+          <div className="label" style={{ color: 'var(--green)' }}>✨ Auto-Remediation Script</div>
+          <pre style={{ background: '#000', padding: '1rem', overflowX: 'auto', borderRadius: 'var(--radius-sm)', marginTop: '0.5rem' }}>
+            <code>{auto_fix_script}</code>
+          </pre>
         </div>
       )}
 

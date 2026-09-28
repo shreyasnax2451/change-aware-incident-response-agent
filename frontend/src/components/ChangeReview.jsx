@@ -58,7 +58,7 @@ export default function ChangeReview({ onToast }) {
     <div className="fade-in">
       <div className="page-header">
         <h1>// Change Review</h1>
-        <p>Paste a PR description or diff — Déjà Vu surfaces past incidents caused by similar changes.</p>
+        <p>Paste a PR description or diff — OnCall AI surfaces past incidents caused by similar changes.</p>
       </div>
 
       <div className="split-layout">

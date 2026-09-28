@@ -33,11 +33,19 @@ async def triage(req: TriageRequest) -> TriageResponse:
     memories_fmt = mem_svc.format_memories_for_prompt(memories) if req.use_memory else "(memory disabled)"
 
     # 3. Single LLM call
+    # Truncate alert text to save tokens
+    safe_alert = req.alert_text[:1500] + "...(truncated)" if req.alert_text and len(req.alert_text) > 1500 else req.alert_text
+
     user_prompt = prompts.TRIAGE_USER.format(
-        alert_text=req.alert_text,
+        alert_text=safe_alert,
         memories_formatted=memories_fmt,
         engineer=req.engineer or "unknown",
     )
+    _TRIAGE_SCHEMA_KEYS = [
+        "matched", "root_cause", "recommended_fix", "avoid",
+        "similar_incidents", "suspect_change", "confidence", "spoken_summary", "auto_fix_script"
+    ]
+
     data = llm_svc.call_llm(
         system=prompts.TRIAGE_SYSTEM,
         user=user_prompt,
@@ -56,5 +64,6 @@ async def triage(req: TriageRequest) -> TriageResponse:
         suspect_change=data.get("suspect_change"),
         confidence=data.get("confidence", "low"),
         spoken_summary=data.get("spoken_summary", ""),
+        auto_fix_script=data.get("auto_fix_script"),
         memories_used=[MemoryItem(**m) for m in memories],
     )

@@ -109,7 +109,7 @@ def test_hindsight():
 
 
 def main():
-    print("=== Déjà Vu Smoke Test ===")
+    print("=== OnCall AI Smoke Test ===")
     print(f"GROQ_MODEL     = {settings.GROQ_MODEL}")
     print(f"HINDSIGHT_BANK = {settings.HINDSIGHT_BANK_ID}")
     print(f"HINDSIGHT_URL  = {settings.HINDSIGHT_BASE_URL or '(not set)'}")

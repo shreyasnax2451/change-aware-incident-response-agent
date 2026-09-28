@@ -77,7 +77,7 @@ async def recall(query: str, budget: str = "mid") -> list[dict]:
             bank_id=BANK,
             query=query,
             budget=budget,
-            max_tokens=1500,
+            max_tokens=1000,
             include_chunks=True,
         )
         out = []

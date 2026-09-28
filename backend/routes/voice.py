@@ -41,6 +41,14 @@ async def voice_command(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {e}")
 
+    if not transcript or not transcript.strip():
+        return VoiceCommandResponse(
+            transcript="",
+            intent="none",
+            result={},
+            spoken_summary="I didn't quite catch that."
+        )
+
     # 2. Classify intent
     intent_data = llm_svc.call_llm(
         system=prompts.VOICE_INTENT_SYSTEM,
@@ -78,7 +86,7 @@ async def voice_command(
         )
         resolve_resp = await resolve(resolve_req)
         result = resolve_resp.model_dump()
-        spoken_summary = "Resolution saved to memory."
+        spoken_summary = "Resolution saved to memory. Look at Incident Console for more info."
 
     elif intent == "preference":
         from routes.resolve import resolve
@@ -96,7 +104,7 @@ async def voice_command(
                 meta={"kind": "preference", "engineer": engineer},
             )
         result = {"preference_saved": pref_text}
-        spoken_summary = "Got it, I'll remember that preference."
+        spoken_summary = "Got it, I'll remember that preference. Look at Incident Console for more info."
 
     else:  # question
         from services.memory import recall, format_memories_for_prompt
@@ -105,7 +113,7 @@ async def voice_command(
         memories = await recall(question, budget="mid")
         mems_fmt = format_memories_for_prompt(memories)
         answer_data = call_llm(
-            system="You are an incident memory assistant. Answer the engineer's question using the memory provided. Return JSON: {\"answer\": \"string\", \"spoken_summary\": \"string\"}",
+            system="You are an incident memory assistant. Answer the engineer's question using the memory provided. The spoken_summary MUST be 2-3 sentences and the last sentence MUST be exactly 'Look at Incident Console for more info.'. Return JSON: {\"answer\": \"string\", \"spoken_summary\": \"string\"}",
             user=f"Question: {question}\n\nMemory:\n{mems_fmt}",
             schema_keys=["answer", "spoken_summary"],
         )
